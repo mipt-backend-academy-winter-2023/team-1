@@ -25,7 +25,7 @@ paths:
           description: Bad request
         '409':
           description: Already exists
-          
+
   /auth/token:
     post:
       summary: Get token
@@ -54,6 +54,7 @@ paths:
           description: Not authorized
         '404':
           description: No such user
+
   /routing/find-path:
     get:
       summary: Get path
