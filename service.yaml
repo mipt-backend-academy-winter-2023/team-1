@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: Service API
+  version: 0.0.1
+
+paths:
+  /auth/register:
+    put:
+      summary: Registers new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Registered successfully
+        '400':
+          description: Bad request
+        '409':
+          description: Already exists
+          
+  /auth/token:
+    post:
+      summary: Get token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Valid Login/Password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '403':
+          description: Not authorized
+        '404':
+          description: No such user
+  /routing/find-path:
+    get:
+      summary: Get path
+      parameters:
+        - in: header
+          name: X-Auth-Token
+          required: true
+          schema:
+            type: string
+          description: Auth Token
+        - in: query
+          name: path
+          required: true
+          schema:
+            type: array
+          description: path to calculate
+      responses:
+        '200':
+          description: Found
+          content:
+            application/json:
+              schema:
+                type: array
+        '404':
+          description: Path not exists
+        '498':
+          description: Token expired/invalid
+        '429':
+          description: Too many requests
