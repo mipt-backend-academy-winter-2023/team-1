@@ -1,0 +1,111 @@
+---
+openapi: 3.0.3
+info:
+  
+  title: Route search API
+  description: API for route search service
+  version: 1.0.0
+  
+paths:
+  
+  /authorization/register:
+    post:
+      summary: Registering a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username
+                password:
+                  type: string
+                  description: The password 
+      responses:
+        '201':
+          description: Account created
+        '400':
+          description: Bad request
+        '409':
+          description: Username already registered          
+                  
+  /authorization/login:
+    post:
+      summary: Logging into an existing account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: 
+                  type: string
+                  decsriprion: The username
+                password:
+                  type: string
+                  description: The password
+      responses:
+        '200':
+          description: Successful validation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Authorization token
+        '400':
+          description: Bad request             
+        '401':
+          description: Unregistered username
+        '403':
+          description: Invalid password
+          
+  /routes:
+    get:
+      summary: Route search
+      parameters:
+      - name: authorizationToken
+        in: header
+        description: Authorization token
+        required: true
+        schema: 
+          type: string
+      - name: route
+        in: query
+        description: List of route points Ids  
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+            description: Location Id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    id: 
+                      type: integer
+                      format: int64
+                      description: Location Id
+                    name: 
+                      type: string
+                      description: Location name
+        '400':
+          description: Bad request
+        '403':
+          description: Invalid authorization token
+        '409':
+          description: Invalid route
