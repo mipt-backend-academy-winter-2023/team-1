@@ -16,14 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: The username
-                password:
-                  type: string
-                  description: The password 
+              $ref: '#/components/schemas/UserData'
       responses:
         '201':
           description: Account created
@@ -40,14 +33,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username: 
-                  type: string
-                  decsriprion: The username
-                password:
-                  type: string
-                  description: The password
+              $ref: '#/components/schemas/UserData'
       responses:
         '200':
           description: Successful validation
@@ -109,3 +95,15 @@ paths:
           description: Invalid authorization token
         '409':
           description: Invalid route
+
+components:
+  schemas:
+    UserData:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The username
+        password:
+          type: string
+          description: The password 
