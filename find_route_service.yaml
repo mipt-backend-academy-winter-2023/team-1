@@ -1,0 +1,59 @@
+---
+openapi: 3.1.0
+info:
+  title: FindRoute Service API
+  description: API of FindRoute Service for finding routes
+  version: 1.0.0
+paths:
+  /find_route:
+    post:
+      summary: Find route by point ids
+      requestBody:
+        description: Point ids
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/point_id"
+        required: true
+      responses:
+        "200":
+          description: Route successfully found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/point"
+        "204":
+          description: Some of point ids are non-existent
+        "400":
+          description: Invalid point ids
+        "401":
+          description: Invalid auth token
+        "500":
+          description: Server error
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    point_id:
+      type: string
+      description: Point id
+    point:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/point_id"
+        name:
+          type: string
+          description: Point name
+    auth_token:
+      type: string
+      description: Authorization token
+security:
+  - bearerAuth: []
