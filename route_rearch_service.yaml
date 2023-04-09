@@ -1,11 +1,11 @@
 ---
 openapi: 3.0.3
 info:
-  
+
   title: Route search service API
   description: API for route search service
   version: 1.0.0
-  
+
 paths:
 
   /routes:
@@ -34,10 +34,10 @@ paths:
                 items:
                   type: object
                   properties: 
-                    id: 
+                    id:
                       type: string
                       description: Location Id
-                    name: 
+                    name:
                       type: string
                       description: Location name
                   example:
@@ -49,6 +49,8 @@ paths:
           description: Invalid authorization token
         '204':
           description: Invalid route
+        '500':
+          description: Internal server error
 
 components:
   securitySchemes:

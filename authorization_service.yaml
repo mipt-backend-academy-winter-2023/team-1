@@ -1,13 +1,13 @@
 ---
 openapi: 3.0.3
 info:
-  
+
   title: Authorization service API
   description: API for registration / logging
   version: 1.0.0
-  
+
 paths:
-  
+
   /authorization/register:
     post:
       summary: Registering a new account
@@ -23,8 +23,10 @@ paths:
         '400':
           description: Bad request
         '409':
-          description: Username already registered          
-                  
+          description: Username already registered
+        '500':
+        description: Internal server error            
+
   /authorization/login:
     post:
       summary: Logging into an existing account
@@ -46,9 +48,11 @@ paths:
                     type: string
                     description: Authorization token
         '400':
-          description: Bad request             
+          description: Bad request
         '401':
           description: Unregistered username / Invalid password
+        '500':
+        description: Internal server error
 
 components:
   schemas:
@@ -63,4 +67,4 @@ components:
           description: The password
       required:
         - username
-        - password    
+        - password
