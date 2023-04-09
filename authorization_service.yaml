@@ -25,7 +25,7 @@ paths:
         '409':
           description: Username already registered
         '500':
-        description: Internal server error            
+          description: Internal server error            
 
   /authorization/login:
     post:
@@ -52,7 +52,7 @@ paths:
         '401':
           description: Unregistered username / Invalid password
         '500':
-        description: Internal server error
+          description: Internal server error
 
 components:
   schemas:
