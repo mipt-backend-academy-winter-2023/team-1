@@ -1,0 +1,60 @@
+---
+openapi: 3.0.3
+info:
+
+  title: Route search service API
+  description: API for route search service
+  version: 1.0.0
+
+paths:
+
+  /routes:
+    post:
+      summary: Route search
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        description: Location poins Ids list
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                description: Location Id
+                example: 29346298
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    id:
+                      type: string
+                      description: Location Id
+                    name:
+                      type: string
+                      description: Location name
+                  example:
+                    id: 36472039
+                    name: Some name of location
+        '400':
+          description: Bad request
+        '401':
+          description: Invalid authorization token
+        '204':
+          description: Invalid route
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

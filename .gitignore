@@ -1,0 +1,19 @@
+# IntelliJ IDEA #
+.idea/
+.bsp/
+out/
+
+# sbt
+target/
+project/project/
+project/target/
+
+# Scala
+*.class
+*.log
+
+# MacOS
+.DS_Store
+
+# Misc
+*.env
