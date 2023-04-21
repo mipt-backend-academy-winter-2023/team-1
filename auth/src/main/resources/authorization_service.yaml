@@ -1,0 +1,70 @@
+---
+openapi: 3.0.3
+info:
+
+  title: Authorization service API
+  description: API for registration / logging
+  version: 1.0.0
+
+paths:
+
+  /authorization/register:
+    post:
+      summary: Registering a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserData'
+      responses:
+        '201':
+          description: Account created
+        '400':
+          description: Bad request
+        '409':
+          description: Username already registered
+        '500':
+          description: Internal server error            
+
+  /authorization/login:
+    post:
+      summary: Logging into an existing account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserData'
+      responses:
+        '200':
+          description: Successful validation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Authorization token
+        '400':
+          description: Bad request
+        '401':
+          description: Unregistered username / Invalid password
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    UserData:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The username
+        password:
+          type: string
+          description: The password
+      required:
+        - username
+        - password
