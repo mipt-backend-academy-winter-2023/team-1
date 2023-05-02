@@ -1,8 +1,14 @@
 version: "3.9"
 services:
-  server:
-    build: .
+  auth:
+    build: ./auth
+    ports:
+      - "8082:8082"
+  routing:
+    build: ./routing
+    ports:
+      - "8081:8081"
+  helper:
+    build: ./helper
     ports:
       - "7777:7777"
-      - "8081:8081"
-      - "8082:8082"
