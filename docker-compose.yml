@@ -1,14 +1,17 @@
 version: "3.9"
 services:
   auth:
-    build: ./auth
+    build: .
     ports:
       - "8082:8082"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain auth.AuthMain'"
   routing:
-    build: ./routing
+    build: .
     ports:
       - "8081:8081"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
   helper:
-    build: ./helper
+    build: .
     ports:
       - "7777:7777"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
