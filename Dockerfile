@@ -10,10 +10,12 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 #RUN useradd -ms /bin/bash -p randompass service
 #USER service
 
-RUN curl -s "https://get.sdkman.io" | bash
-RUN bash -c "source ~/.sdkman/bin/sdkman-init.sh && sdk install java $JAVA_VERSION && sdk install sbt"
-
 WORKDIR /workspace
+
+ADD ./ci ./ci
+
+RUN ./ci/install_sdk.sh && ./ci/install_java.sh "$JAVA_VERSION" && ./ci/install_sbt.sh
+
 ADD ./build.sbt .
 RUN bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt --version"
 ADD . .
