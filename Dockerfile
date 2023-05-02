@@ -11,4 +11,5 @@ WORKDIR /workspace
 ADD . .
 RUN exec bash && sbt package
 
+# EXPOSE 8080 # TODO Drakohka95 specify port
 CMD exec bash && sbt run
