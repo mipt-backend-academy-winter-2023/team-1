@@ -13,7 +13,7 @@ object RoutingMain extends ZIOAppDefault {
         .provide(
           Server.live,
           ServiceConfig.live,
-        ).fork
+        )
     } yield ()
   }
 }

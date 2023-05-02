@@ -13,7 +13,7 @@ object HelperMain extends ZIOAppDefault {
         .provide(
           Server.live,
           ServiceConfig.live,
-        ).fork
+        )
     } yield ()
   }
 }

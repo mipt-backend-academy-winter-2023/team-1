@@ -13,7 +13,7 @@ object AuthMain extends ZIOAppDefault {
         .provide(
           Server.live,
           ServiceConfig.live,
-        ).fork
+        )
     } yield ()
   }
 }
