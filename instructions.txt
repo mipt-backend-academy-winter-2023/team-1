@@ -1,0 +1,10 @@
+Для запуска сервиса авторизации:
+    $ docker build -t auth_docker_image -f Dockerfile.auth .
+    $ docker run -p 8082:8082 auth_docker_image
+
+Для запуска сервиса маршрутов:
+    $ docker build -t routing_docker_image -f Dockerfile.routing .
+    $ docker run -p 8081:8081 routing_docker_image
+
+Для запуска обоих сервисов:
+    $ docker-compose up
