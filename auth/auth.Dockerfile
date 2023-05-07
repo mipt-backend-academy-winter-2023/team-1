@@ -40,6 +40,6 @@ RUN apt-get install -y locales && locale-gen en_DK.UTF-8
 
 COPY --from=builder /workspace/target/scala-2.13/*.jar .
 
-EXPOSE 7777
+EXPOSE 8082
 
 ENTRYPOINT bash -c "source ~/.sdkman/bin/sdkman-init.sh && LC_ALL=en_DK.UTF-8 java -cp /workspace/*.jar auth.AuthMain"
