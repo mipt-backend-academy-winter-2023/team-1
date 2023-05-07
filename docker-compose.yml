@@ -1,23 +1,19 @@
 version: "3.9"
 services:
   auth:
-    build: .
+    build:
+      context: .
+      dockerfile: auth/auth.Dockerfile
     ports:
       - "8082:8082"
     expose:
       - "8082"
-    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain auth.AuthMain'"
   routing:
-    build: .
+    build:
+      context: .
+      dockerfile: routing/routing.Dockerfile
     ports:
       - "8081:8081"
     expose:
       - "8081"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
-  helper:
-    build: .
-    ports:
-      - "7777:7777"
-    expose:
-      - "7777"
-    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
