@@ -36,3 +36,8 @@ lazy val helper = (project in file("helper"))
     name := "project-helper",
     libraryDependencies ++= Helper.dependencies
   )
+
+ThisBuild / assemblyMergeStrategy := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => (ThisBuild / assemblyMergeStrategy).value(x)
+}
