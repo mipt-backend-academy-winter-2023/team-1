@@ -16,3 +16,9 @@ services:
       - "8081:8081"
     expose:
       - "8081"
+  help:
+    build:
+      context: .
+      dockerfile: helper/helper.Dockerfile
+    ports:
+      - "7777:7777"
