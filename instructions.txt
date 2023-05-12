@@ -7,4 +7,4 @@
     $ docker run -p 8081:8081 routing_docker_image
 
 Для запуска обоих сервисов:
-    $ docker-compose up
+    $ docker compose up --build

@@ -1,11 +1,11 @@
 FROM sbtscala/scala-sbt:eclipse-temurin-jammy-19.0.1_10_1.8.2_2.13.10 AS build
-WORKDIR /routing
-COPY /routing /routing
-ENV SBT_OPTS="-Xms4G -Xmx4G -Xss8M"
-RUN sbt clean
-RUN sbt assembly
+WORKDIR /root
+COPY . .
+EXPOSE 8081
+RUN sbt "routing / clean"
+RUN sbt "routing / assembly"
 
 FROM eclipse-temurin:19-jre-focal
-RUN mkdir -p  /opt/routing-app
-COPY --from=build /routing/target/scala-2.13/routing.jar /opt/routing-app/routing.jar
-ENTRYPOINT ["java", "-jar", "/opt/routing-app/routing.jar"]
+RUN mkdir -p  /opt/app
+COPY --from=build /root/routing/target/routing.jar /opt/app/routing.jar
+ENTRYPOINT ["java", "-jar", "/opt/app/routing.jar"]
