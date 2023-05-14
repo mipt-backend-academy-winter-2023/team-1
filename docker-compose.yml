@@ -16,3 +16,14 @@ services:
       - "8081:8081"
     expose:
       - "8081"
+  database:
+    image: postgres:latest
+    env_file:
+      - database.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+
+volumes:
+  database-data:
