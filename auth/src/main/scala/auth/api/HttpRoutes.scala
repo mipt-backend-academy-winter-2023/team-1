@@ -1,17 +1,17 @@
 package auth.api
 
+import auth.model.JsonProtocol._
 import auth.model.User
 import auth.repo.UserRepository
 import auth.utils.JwtUtils._
+import io.circe.jawn.decode
 import zio.ZIO
 import zio.http._
 import zio.http.model.Method
 import zio.http.model.Status._
-import io.circe.jawn.decode
-import zio.http.model.Status.BadRequest
 
 object HttpRoutes {
-  val app: HttpApp[Any, Response] =
+  val app: HttpApp[UserRepository, Response] =
     Http.collectZIO[Request] {
       case req@Method.POST -> !! / "authorization" / "register" =>
         (for {

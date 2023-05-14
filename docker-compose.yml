@@ -8,6 +8,8 @@ services:
       - "8082:8082"
     expose:
       - "8082"
+    depends_on:
+      - database
   routing:
     build:
       context: .
