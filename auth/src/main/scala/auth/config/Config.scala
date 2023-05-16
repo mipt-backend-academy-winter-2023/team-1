@@ -37,18 +37,11 @@ object Config {
   }
 }
 
-case class ConfigImpl(
-                       dbConfig: DbConfig
-                     )
+case class ConfigImpl(dbConfig: DbConfig)
 
-case class DbConfig(
-                     url: String,
-                     user: String,
-                     password: String
-                   )
+case class DbConfig(url: String, user: String, password: String)
 
 object ConfigImpl {
   implicit val configReader: ConfigReader[ConfigImpl] = deriveReader[ConfigImpl]
   implicit val configReaderDbConfig: ConfigReader[DbConfig] = deriveReader[DbConfig]
 }
-
