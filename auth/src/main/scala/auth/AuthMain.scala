@@ -1,7 +1,7 @@
 package auth
 
 import auth.api.HttpRoutes
-import auth.config.{Config, ServiceConfig}
+import auth.config.Config
 import auth.flyway.FlywayAdapter
 import auth.repo.UserRepositoryImpl
 import zio.http.Server
@@ -19,7 +19,7 @@ object AuthMain extends ZIOAppDefault {
 
     server.provide(
       Server.live,
-      ServiceConfig.live,
+      Config.serverLive,
       Config.dbLive,
       FlywayAdapter.live,
       Config.connectionPoolConfigLive,

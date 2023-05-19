@@ -9,5 +9,5 @@ trait PostgresTableDescription extends PostgresJdbcModule {
 
   val users = defineTable[User]
 
-  val (username, password) = users.columns
+  val (fUsername, fPassword) = users.columns
 }

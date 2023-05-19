@@ -38,8 +38,18 @@ lazy val helper = (project in file("helper"))
   )
 
 ThisBuild / assemblyMergeStrategy := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case PathList("META-INF", xs@_*) =>
+    xs.map(_.toLowerCase) match {
+      case "manifest.mf" :: Nil |
+           "index.list" :: Nil |
+           "dependencies" :: Nil |
+           "license" :: Nil |
+           "notice" :: Nil => MergeStrategy.discard
+      case _ => MergeStrategy.first
+    }
   case PathList("module-info.class") => MergeStrategy.discard
   case x if x.endsWith("/module-info.class") => MergeStrategy.discard
   case x => (ThisBuild / assemblyMergeStrategy).value(x)
 }
+
+

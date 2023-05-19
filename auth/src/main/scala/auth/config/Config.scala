@@ -2,24 +2,28 @@ package auth.config
 
 import pureconfig._
 import pureconfig.generic.semiauto.deriveReader
-
+import zio.http.ServerConfig
 import zio.sql.ConnectionPoolConfig
-import zio.{ULayer, ZIO, ZLayer}
+import zio.{ULayer, ZIO, ZLayer, http}
 
 import java.util.Properties
 
 object Config {
-  private val basePath = "app"
-  private val source = ConfigSource.default.at(basePath)
+  private val source = ConfigSource.default.at("app")
 
   val dbLive: ULayer[DbConfig] = {
-    ZLayer.fromZIO(
-      ZIO.attempt(source.loadOrThrow[ConfigImpl].dbConfig).orDie
-    )
+    import ConfigImpl._
+    ZLayer.fromZIO(ZIO.attempt(source.loadOrThrow[ConfigImpl].dbConfig).orDie)
   }
 
-  val connectionPoolConfigLive
-  : ZLayer[DbConfig, Throwable, ConnectionPoolConfig] =
+  val serverLive: ZLayer[Any, Nothing, ServerConfig] =
+    zio.http.ServerConfig.live(
+      http.ServerConfig.default.port(
+        source.loadOrThrow[ConfigImpl].httpServiceConfig.port
+      )
+    )
+
+  val connectionPoolConfigLive: ZLayer[DbConfig, Throwable, ConnectionPoolConfig] =
     ZLayer(
       for {
         serverConfig <- ZIO.service[DbConfig]
@@ -37,11 +41,24 @@ object Config {
   }
 }
 
-case class ConfigImpl(dbConfig: DbConfig)
+case class ConfigImpl(
+  dbConfig: DbConfig,
+  httpServiceConfig: HttpServerConfig
+)
 
-case class DbConfig(url: String, user: String, password: String)
+case class DbConfig(
+  url: String,
+  user: String,
+  password: String
+)
+
+case class HttpServerConfig(
+  host: String,
+  port: Int
+)
 
 object ConfigImpl {
   implicit val configReader: ConfigReader[ConfigImpl] = deriveReader[ConfigImpl]
+  implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] = deriveReader[HttpServerConfig]
   implicit val configReaderDbConfig: ConfigReader[DbConfig] = deriveReader[DbConfig]
 }
