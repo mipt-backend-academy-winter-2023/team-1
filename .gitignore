@@ -17,3 +17,4 @@ project/target/
 
 # Misc
 *.env
+!database.env

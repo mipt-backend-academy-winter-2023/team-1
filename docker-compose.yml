@@ -1,18 +1,53 @@
 version: "3.9"
 services:
+  # Auth Service
   auth:
     build:
       context: .
       dockerfile: auth/auth.Dockerfile
+    env_file:
+      - database.env
     ports:
       - "8082:8082"
     expose:
       - "8082"
+    depends_on:
+      - db
+    links:
+      - db:db
+    secrets:
+      - db-password
+  # Routing service
   routing:
     build:
       context: .
       dockerfile: routing/routing.Dockerfile
+    env_file:
+      - database.env
     ports:
       - "8081:8081"
     expose:
       - "8081"
+    depends_on:
+      - db
+    links:
+      - db:db
+    secrets:
+      - db-password
+  # Database
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    secrets:
+      - db-password
+    env_file:
+      - database.env
+    ports:
+      - "5432:5432"
+
+secrets:
+  db-password:
+    file: db_password.txt
+volumes:
+  db-data:
