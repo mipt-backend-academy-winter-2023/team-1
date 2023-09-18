@@ -16,4 +16,4 @@ project/target/
 .DS_Store
 
 # Misc
-*.env
+#*.env
