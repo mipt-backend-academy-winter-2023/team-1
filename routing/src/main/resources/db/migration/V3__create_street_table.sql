@@ -1,14 +1,15 @@
 CREATE TABLE "street" (
     "fromId" INT,
-    "toId" INT
+    "toId" INT,
+    "name" VARCHAR
 );
 
 INSERT INTO "street" (fromId, toId)
-VALUES (?, ?),
-       (?, ?),
-       (?, ?),
-       (?, ?),
-       (?, ?),
-       (?, ?),
-       (?, ?),
-       (?, ?);
+VALUES (?, ?, ?),
+       (?, ?, ?),
+       (?, ?, ?),
+       (?, ?, ?),
+       (?, ?, ?),
+       (?, ?, ?),
+       (?, ?, ?),
+       (?, ?, ?);

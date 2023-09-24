@@ -21,7 +21,7 @@ final class StreetRepositoryImpl(pool: ConnectionPool)
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findAllStreets: ZStream[Any, Throwable, Street] = {
-    val selectAll = select().from(street)
+    val selectAll = select(fromId, toId, name).from(street)
 
     ZStream.fromZIO(
       ZIO.logInfo(s"Query to execute findAllStreets is ${renderRead(selectAll)}")

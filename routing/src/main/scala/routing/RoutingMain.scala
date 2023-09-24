@@ -15,8 +15,7 @@ object RoutingMain extends ZIOAppDefault {
       _ <- ZIO.logInfo("Start RoutingMain")
       flyway <- ZIO.service[FlywayAdapter.Service]
       _ <- flyway.migration
-      // TODO: подгружаем граф
-      // _ = Graph.reload
+       _ <- Graph.reload
       server <- zio.http.Server.serve(HttpRoutes.app)
     } yield server
 

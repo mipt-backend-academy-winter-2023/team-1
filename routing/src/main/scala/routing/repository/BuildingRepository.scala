@@ -6,12 +6,12 @@ import zio.stream.ZStream
 import zio.{ZIO, ZLayer}
 
 trait BuildingRepository {
-  def findAllStreets: ZStream[Any, Throwable, Building]
+  def findAllBuildings: ZStream[Any, Throwable, Building]
 }
 
 object BuildingRepository {
-  def findAllStreets: ZStream[BuildingRepository, Throwable, Building] =
-    ZStream.serviceWithStream[BuildingRepository](_.findAllStreets)
+  def findAllBuildings: ZStream[BuildingRepository, Throwable, Building] =
+    ZStream.serviceWithStream[BuildingRepository](_.findAllBuildings)
 }
 
 final class BuildingRepositoryImpl(pool: ConnectionPool)
@@ -20,8 +20,8 @@ final class BuildingRepositoryImpl(pool: ConnectionPool)
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
-  override def findAllStreets: ZStream[Any, Throwable, Building] = {
-    val selectAll = select().from(building)
+  override def findAllBuildings: ZStream[Any, Throwable, Building] = {
+    val selectAll = select(id, longitude, latitude, name).from(building)
 
     ZStream.fromZIO(
       ZIO.logInfo(s"Query to execute findAllStreets is ${renderRead(selectAll)}")

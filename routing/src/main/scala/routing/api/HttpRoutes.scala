@@ -5,6 +5,7 @@ import routing.model.RoutingRequest
 import routing.repository.{BuildingRepository, CrossroadRepository, StreetRepository}
 import routing.utils.{Graph, InvalidAuthorizationToken, JwtUtils}
 import io.circe.jawn.decode
+import routing.utils.Graph.RouteNotFound
 import zio.ZIO
 import zio.http._
 import zio.http.model.Status.BadRequest
@@ -28,12 +29,12 @@ object HttpRoutes {
             .fromEither(decode[RoutingRequest](bodyStr))
             .tapError(_ => ZIO.logError("Points' ids not provided"))
 
-          // TODO: A*
-          // route = Graph.searchForShortestRoute(routingRequest)
-          route = "Still searching"
+          route <- Graph.searchForShortestRoute(routingRequest)
+          // TODO: преобразовать маршрут в красивый Response
         } yield route).either.map {
-          case Right(route) => Response.text(route).setStatus(Status.Ok)
+          case Right(route) => Response.text(route.toString).setStatus(Status.Ok)
           case Left(InvalidAuthorizationToken(msg)) => Response.text(msg).setStatus(Status.Unauthorized)
+          case Left(RouteNotFound(msg)) => Response.text(msg).setStatus(Status.NoContent)
           case Left(_) => Response.status(BadRequest)
         }
     }

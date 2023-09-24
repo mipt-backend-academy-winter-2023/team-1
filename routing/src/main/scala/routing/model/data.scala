@@ -23,7 +23,8 @@ case class Building(
 
 case class Street(
   fromId: Int,
-  toId: Int
+  toId: Int,
+  name: String
 ) extends Geo
 
 case class RoutingRequest(

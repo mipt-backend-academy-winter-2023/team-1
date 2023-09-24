@@ -15,5 +15,5 @@ trait PostgresTableDescription extends PostgresJdbcModule {
 
   val (id, longitude, latitude, name) = building.columns
   val (id, longitude, latitude) = crossroad.columns
-  val (fromId, toId) = street.columns
+  val (fromId, toId, name) = street.columns
 }

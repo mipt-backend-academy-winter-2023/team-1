@@ -21,7 +21,7 @@ final class CrossroadRepositoryImpl(pool: ConnectionPool)
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findAllCrossroads: ZStream[Any, Throwable, Crossroad] = {
-    val selectAll = select().from(crossroad)
+    val selectAll = select(id, longitude, latitude).from(crossroad)
 
     ZStream.fromZIO(
       ZIO.logInfo(s"Query to execute findAllCrossroads is ${renderRead(selectAll)}")
