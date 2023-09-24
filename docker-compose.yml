@@ -9,6 +9,16 @@ services:
       - "5433:5432"
     volumes:
       - database-data:/var/lib/postgresql/data/
+
+  routing_database:
+    image: "postgres"
+    env_file:
+      - routing_database.env
+    ports:
+      - "5434:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/routing_data/
+
   auth:
     build:
       context: .
@@ -19,6 +29,7 @@ services:
       - "8082"
     depends_on:
       - database
+
   routing:
     build:
       context: .
