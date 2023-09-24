@@ -1,0 +1,3 @@
+[submodule "bb4-A-star"]
+	path = bb4-A-star
+	url = git@github.com:bb4/bb4-A-star.git
