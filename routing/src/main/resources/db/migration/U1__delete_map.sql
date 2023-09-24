@@ -1,0 +1,4 @@
+DROP TABLE house_crossroad IF EXISTS;
+DROP TABLE houses IF EXISTS;
+DROP TABLE roads IF EXISTS;
+DROP TABLE crossroads IF EXISTS;
