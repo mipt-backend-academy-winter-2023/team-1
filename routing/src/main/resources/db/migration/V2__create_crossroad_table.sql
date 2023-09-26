@@ -4,7 +4,7 @@ CREATE TABLE "crossroad" (
     "latitude" FLOAT,
 );
 
-INSERT INTO "crossroad" (id, longitude, latitude)
-VALUES (1, ?, ?),
-       (2, ?, ?),
-       (3, ?, ?);
+-- INSERT INTO "crossroad" (id, longitude, latitude)
+-- VALUES (1, ?, ?),
+--        (2, ?, ?),
+--        (3, ?, ?);

@@ -5,7 +5,7 @@ CREATE TABLE "building" (
     "name" VARCHAR
 );
 
-INSERT INTO "building" (id, longitude, latitude, name)
-VALUES (1001, ?, ?, ?)
-       (1002, ?, ?, ?)
-       (1002, ?, ?, ?);
+-- INSERT INTO "building" (id, longitude, latitude, name)
+-- VALUES (1001, ?, ?, ?)
+--        (1002, ?, ?, ?)
+--       (1002, ?, ?, ?);
