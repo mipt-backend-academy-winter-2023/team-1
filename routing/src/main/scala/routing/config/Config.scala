@@ -62,4 +62,3 @@ object ConfigImpl {
   implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] = deriveReader[HttpServerConfig]
   implicit val configReaderDbConfig: ConfigReader[DbConfig] = deriveReader[DbConfig]
 }
-

@@ -29,4 +29,3 @@ class FlywayAdapterImpl(dbConfig: DbConfig) extends FlywayAdapter.Service {
   override def migration: IO[FlywayException, MigrateResult] =
     flyway.map(_.migrate())
 }
-
