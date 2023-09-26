@@ -31,6 +31,9 @@ object Graph {
     } yield ()
   }
 
+  private implicit val ordering: Ordering[Tuple2[Float, Int]] =
+    (point1, point2) => if (point1._1 < point2._1) 1 else 0
+
   def searchForShortestRoute(routingRequest: RoutingRequest): ZIO[Any, Throwable, Seq[Geo]] = {
     var queue = new mutable.PriorityQueue[Tuple2[Float, Int]]()
     queue.addOne((0, routingRequest.fromPointId))
