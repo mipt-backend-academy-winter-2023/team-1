@@ -1,0 +1,1 @@
+DROP TABLE "street" IF EXISTS;
