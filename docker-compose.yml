@@ -1,14 +1,14 @@
 version: "3.9"
 
 services:
-  database:
+  user_database:
     image: "postgres"
     env_file:
       - database.env
     ports:
       - "5433:5432"
     volumes:
-      - database-data:/var/lib/postgresql/data/
+      - user-data:/var/lib/postgresql/data/
 
   routing_database:
     image: "postgres"
@@ -17,7 +17,18 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - database-data:/var/lib/postgresql/routing_data/
+      - routing-data:/var/lib/postgresql/routing_data/
+
+  photos:
+    build:
+      context: .
+      dockerfile: photos/photos.Dockerfile
+    ports:
+      - "8083:8083"
+    expose:
+      - "8083"
+    volumes:
+      - pictures-data:/data/photos/
 
   auth:
     build:
@@ -28,7 +39,7 @@ services:
     expose:
       - "8082"
     depends_on:
-      - database
+      - user_database
 
   routing:
     build:
@@ -38,6 +49,10 @@ services:
       - "8081:8081"
     expose:
       - "8081"
+    depends_on:
+      - routing_database
 
 volumes:
-  database-data:
+  user-data:
+  routing-data:
+  pictures-data:
