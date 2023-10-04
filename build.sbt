@@ -1,8 +1,8 @@
-import Dependencies.{Auth, Routing, Helper}
+import Dependencies.{Auth, Routing, Photos, Helper}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / scalaVersion := "2.13.11"
 
 lazy val root = (project in file("."))
   .settings(
@@ -29,6 +29,12 @@ lazy val routing = (project in file("routing"))
   .settings(
     name := "project-routing",
     libraryDependencies ++= Routing.dependencies
+  )
+
+lazy val photos = (project in file("photos"))
+  .settings(
+    name := "project-photos",
+    libraryDependencies ++= Photos.dependencies
   )
 
 lazy val helper = (project in file("helper"))
