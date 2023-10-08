@@ -102,7 +102,6 @@ object Graph {
     (distance * 1.609344).toFloat
   }
 
-
   private def collectFullRoute(routingRequest: RoutingRequest): Seq[Geo] = {
     val endGeoPoint = findGeoPointById(routingRequest.toPointId)
     var route: Seq[Geo] = Seq(endGeoPoint)
