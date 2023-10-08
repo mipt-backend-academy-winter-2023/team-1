@@ -29,6 +29,11 @@ object HttpRoutes {
             .fromEither(decode[RoutingRequest](bodyStr))
             .tapError(_ => ZIO.logError("Points' ids not provided"))
 
+          _ <- Graph.findGeoPointByIdSafe(routingRequest.fromPointId)
+            .tapError(_ => ZIO.logError("Invalid point id"))
+          _ <- Graph.findGeoPointByIdSafe(routingRequest.toPointId)
+            .tapError(_ => ZIO.logError("Invalid point id"))
+
           route <- Graph.searchForShortestRoute(routingRequest)
           // TODO: преобразовать маршрут в красивый Response
         } yield route).either.map {

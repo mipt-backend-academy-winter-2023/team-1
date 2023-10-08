@@ -24,9 +24,9 @@ object Graph {
     geoPoints.clear()
     streets.clear()
     for {
-      _ <- CrossroadRepository.findAllCrossroads.runCollect.map(points => geoPoints ++= points.toArray)
-      _ <- BuildingRepository.findAllBuildings.runCollect.map(points => geoPoints ++= points.toArray)
-      _ <- StreetRepository.findAllStreets.runCollect.map(foundStreets => streets ++= foundStreets.toArray)
+      _ <- CrossroadRepository.findAllCrossroads.runCollect.map(points => geoPoints ++= points.toList)
+      _ <- BuildingRepository.findAllBuildings.runCollect.map(points => geoPoints ++= points.toList)
+      _ <- StreetRepository.findAllStreets.runCollect.map(foundStreets => streets ++= foundStreets.toList)
       _ = init()
     } yield ()
   }
@@ -35,6 +35,9 @@ object Graph {
     (point1, point2) => if (point1._1 < point2._1) 1 else 0
 
   def searchForShortestRoute(routingRequest: RoutingRequest): ZIO[Any, Throwable, Seq[Geo]] = {
+    distances.clear()
+    prev.clear()
+
     var queue = new mutable.PriorityQueue[Tuple2[Float, Int]]()
     queue.addOne((0, routingRequest.fromPointId))
     distances(routingRequest.fromPointId) = 0
@@ -55,7 +58,7 @@ object Graph {
     }
 
     if (distances(routingRequest.toPointId) < Float.PositiveInfinity - 1)
-      collectFullRoute(routingRequest)
+      ZIO.succeed(collectFullRoute(routingRequest))
     else
       ZIO.fail(RouteNotFound("Route not found"))
   }
@@ -64,29 +67,29 @@ object Graph {
     graphEdges.clear()
     distances.clear()
     prev.clear()
-    streets.foreach(Graph.addEdge)
+    streets.foreach(addEdge)
   }
 
-  private def findGeoPointById(id: Int): ZIO[Any, Throwable, GeoPoint] = geoPoints.find(_.id == id) match {
+  private def findGeoPointById(id: Int): GeoPoint = geoPoints.find(_.id == id).get
+
+  def findGeoPointByIdSafe(id: Int): ZIO[Any, Throwable, GeoPoint] = geoPoints.find(_.id == id) match {
     case Some(geoPoint) => ZIO.succeed(geoPoint)
     case _ => ZIO.fail(RouteNotFound("Route not found"))
   }
 
-  private def addEdge(street: Street): ZIO[Any, Throwable, Unit] = for {
-    geoPointFrom <- findGeoPointById(street.fromId)
-    geoPointTo <- findGeoPointById(street.toId)
-    _ = {
-      val weight: Float = calculateDistance(
-        geoPointFrom.latitude,
-        geoPointFrom.longitude,
-        geoPointTo.latitude,
-        geoPointTo.longitude)
-      graphEdges(geoPointFrom.id) =
-        Edge(geoPointFrom, geoPointTo, street.name, weight) +: graphEdges.getOrElse(geoPointFrom.id, Seq())
-      graphEdges(geoPointTo.id) =
-        Edge(geoPointTo, geoPointFrom, street.name, weight) +: graphEdges.getOrElse(geoPointTo.id, Seq())
-    }
-  } yield ()
+  private def addEdge(street: Street): Unit = {
+    val geoPointFrom = findGeoPointById(street.fromId)
+    val geoPointTo = findGeoPointById(street.toId)
+    val weight: Float = calculateDistance(
+      geoPointFrom.latitude,
+      geoPointFrom.longitude,
+      geoPointTo.latitude,
+      geoPointTo.longitude)
+    graphEdges(geoPointFrom.id) =
+      Edge(geoPointFrom, geoPointTo, street.name, weight) +: graphEdges.getOrElse(geoPointFrom.id, Seq())
+    graphEdges(geoPointTo.id) =
+      Edge(geoPointTo, geoPointFrom, street.name, weight) +: graphEdges.getOrElse(geoPointTo.id, Seq())
+  }
 
   private def calculateDistance(longitude1: Float, latitude1: Float, longitude2: Float, latitude2: Float): Float = {
     val theta = longitude1 - longitude2
@@ -99,21 +102,17 @@ object Graph {
     (distance * 1.609344).toFloat
   }
 
+  private def collectFullRoute(routingRequest: RoutingRequest): Seq[Geo] = {
+    val endGeoPoint = findGeoPointById(routingRequest.toPointId)
+    var route: Seq[Geo] = Seq(endGeoPoint)
+    var (street, point) = prev(routingRequest.toPointId)
 
-  private def collectFullRoute(routingRequest: RoutingRequest): ZIO[Any, Throwable, Seq[Geo]] =
-    for {
-      endGeoPoint <- findGeoPointById(routingRequest.toPointId)
-      fullRoute = {
-        var route: Seq[Geo] = Seq(endGeoPoint)
-        var (street, point) = prev(routingRequest.toPointId)
-
-        while (point.id != routingRequest.fromPointId) {
-          route = point +: street +: route
-          val prevRoute = prev(point.id)
-          street = prevRoute._1
-          point = prevRoute._2
-        }
-        point +: street +: route
-      }
-    } yield fullRoute
+    while (point.id != routingRequest.fromPointId) {
+      route = point +: street +: route
+      val prevRoute = prev(point.id)
+      street = prevRoute._1
+      point = prevRoute._2
+    }
+    point +: street +: route
+  }
 }

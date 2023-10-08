@@ -15,7 +15,7 @@ object CrossroadRepository {
 }
 
 final class CrossroadRepositoryImpl(pool: ConnectionPool)
-  extends PostgresTableDescription
+  extends CrossroadTableDescription
      with CrossroadRepository {
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))

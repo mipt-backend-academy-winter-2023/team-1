@@ -15,7 +15,7 @@ object BuildingRepository {
 }
 
 final class BuildingRepositoryImpl(pool: ConnectionPool)
-  extends PostgresTableDescription
+  extends BuildingTableDescription
      with BuildingRepository {
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))

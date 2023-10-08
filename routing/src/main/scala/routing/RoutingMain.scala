@@ -15,7 +15,7 @@ object RoutingMain extends ZIOAppDefault {
       _ <- ZIO.logInfo("Start RoutingMain")
       flyway <- ZIO.service[FlywayAdapter.Service]
       _ <- flyway.migration
-       _ <- Graph.reload.tapError(_ => ZIO.logError("Invalid graph"))
+      _ <- Graph.reload.tapError(_ => ZIO.logError("Invalid graph"))
       server <- zio.http.Server.serve(HttpRoutes.app)
     } yield server
 

@@ -1,10 +1,9 @@
-CREATE TABLE "crossroad" (
-    "id" INT,
-    "longitude" FLOAT,
-    "latitude" FLOAT,
+CREATE TABLE IF NOT EXISTS "crossroad" (
+    "id" INT NOT NULL PRIMARY KEY,
+    "longitude" FLOAT NOT NULL,
+    "latitude" FLOAT NOT NULL
 );
 
--- INSERT INTO "crossroad" (id, longitude, latitude)
--- VALUES (1, ?, ?),
---        (2, ?, ?),
---        (3, ?, ?);
+ INSERT INTO "crossroad" (id, longitude, latitude)
+ VALUES (1, 37.487218, 55.839313),
+        (2, 37.493773, 55.839349);
