@@ -15,7 +15,7 @@ object StreetRepository {
 }
 
 final class StreetRepositoryImpl(pool: ConnectionPool)
-  extends PostgresTableDescription
+  extends StreetTableDescription
      with StreetRepository {
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
