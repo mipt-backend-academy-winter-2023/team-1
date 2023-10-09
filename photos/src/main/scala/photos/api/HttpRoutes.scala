@@ -56,13 +56,15 @@ object HttpRoutes {
 
           outputPath = Paths.get(".", "src", s"${id}_image.png")
 
-          resp: Response =
+          resp <-
             if (Files.notExists(outputPath))
               ZIO.fail(FileNotFoundError("No such file"))
             else
-              Response(
-                status = Status.Ok,
-                body = Body.fromFile(new File(outputPath.toAbsolutePath.toString))
+              ZIO.succeed(
+                Response(
+                  status = Status.Ok,
+                  body = Body.fromFile(new File(outputPath.toAbsolutePath.toString))
+                )
               )
         } yield resp).either.map {
           case Right(resp) => resp
