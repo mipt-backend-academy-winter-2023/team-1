@@ -1,6 +1,6 @@
 package photos.api
 
-import photos.utils.{InvalidAuthorizationToken, JwtUtils}
+import photos.utils.{InvalidAuthorizationToken, JwtUtils, PhotosValidation}
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -8,6 +8,7 @@ import zio.stream.ZSink
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Paths}
+
 
 case class ConflictError(msg: String) extends Exception(msg)
 case class FileNotFoundError(msg: String) extends Exception(msg)
@@ -34,6 +35,7 @@ object HttpRoutes {
             .tapError(_ => ZIO.logInfo("Unable to create file"))
 
           _ <- req.body.asStream
+            .via(PhotosValidation.pipeline)
             .run(ZSink.fromPath(path))
             .catchAll(_ => ZIO.fail(ConflictError("Files conflict")))
         } yield ()).either.map {
