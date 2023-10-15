@@ -1,7 +1,8 @@
 package photos.api
 
-import photos.repository.{S3Repository, TooLongRequest}
-import photos.utils.{InvalidAuthorizationToken, JwtUtils}
+import photos.{Auth, PhotoError, S3}
+import photos.repository.{NotPicture, S3Error, S3Repository, TooBig, TooLongRequest}
+import photos.utils.{AuthError, JwtError, JwtUtils}
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -23,20 +24,28 @@ object HttpRoutes {
           s3Repository <- ZIO.service[S3Repository]
 
           result <- s3Repository.write(req.body.asStream, FPath(id))
-        } yield result).either.map {
-          case Right(_) => Response.status(Status.Ok)
-          case Left(InvalidAuthorizationToken(msg)) => Response.text(msg).setStatus(Status.Unauthorized)
-          case Left(TooLongRequest) => Response.text("Too big request").setStatus(Status.RequestEntityTooLarge)
-          case Left(_) => Response.status(Status.BadRequest)
-        }
-      case req @ Method.GET -> !! / "photo" / "get" / id =>
-        (for {
-          s3Repository <- ZIO.service[S3Repository]
-
-          result <- s3Repository.read(FPath(id))
-        } yield result).either.map {
-          case Right(_) => Response.status(Status.Ok)
-          case Left(_) => Response.status(Status.NotFound)
-        }
+        } yield result)
+          .map {
+            _ => Response.status(Status.Ok)
+          }
+          .mapError {
+            case Auth(error: AuthError) => error match {
+              case JwtError(msg) => Response.text(msg).setStatus(Status.Unauthorized)
+            }
+            case S3(error: S3Error) => error match {
+              case TooBig(length) => Response.text(f"Too big request: $length").setStatus(Status.RequestEntityTooLarge)
+              case NotPicture => Response.text("File is not a picture").setStatus(Status.BadRequest)
+            }
+          }
+//      case req @ Method.GET -> !! / "photo" / "get" / id =>
+//        (for {
+//          s3Repository <- ZIO.service[S3Repository]
+//
+//          result <- s3Repository.read(FPath(id))
+//        } yield result).either.map {
+//          case Right(_) => Response.status(Status.Ok)
+//          case Left(_) => Response.status(Status.NotFound)
+//        }
+      case _ => ZIO.succeed(Response.status(Status.NotImplemented))
     }
 }

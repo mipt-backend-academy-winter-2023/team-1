@@ -2,7 +2,7 @@ package photos
 
 import photos.api.HttpRoutes
 import photos.config.Config
-import photos.repository.S3Repository
+import photos.repository.{FileRepository, S3Repository}
 import zio.http.Server
 import zio.sql.ConnectionPool
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
@@ -18,7 +18,7 @@ object PhotosMain extends ZIOAppDefault {
       Config.serverLive,
       Server.live,
       Config.s3Live,
-      S3Repository.live,
+      FileRepository.live,
     )
   }
 }
