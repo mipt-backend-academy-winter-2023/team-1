@@ -31,6 +31,12 @@ lazy val routing = (project in file("routing"))
     libraryDependencies ++= Routing.dependencies
   )
 
+lazy val photos = (project in file("photos"))
+  .settings(
+    name := "project-photos",
+    libraryDependencies ++= Routing.dependencies
+  )
+
 lazy val helper = (project in file("helper"))
   .settings(
     name := "project-helper",

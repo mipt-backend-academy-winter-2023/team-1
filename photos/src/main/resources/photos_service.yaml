@@ -1,0 +1,66 @@
+---
+openapi: 3.0.3
+info:
+
+  title: Photos service API
+  description: API for photos
+  version: 1.0.0
+
+paths:
+
+  /photo/upload/{id}:
+    post:
+      summary: Upload a photo
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Photo unique id
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        description: Upload a file
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: File uploaded
+        '400':
+          description: Bad request
+        '401':
+          description: Invalid authorization token
+        '404':
+          description: No such url
+        '500':
+          description: Internal server error
+  /photo/get/{id}:
+    get:
+      summary: Get a photo
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Photo unique id
+      responses:
+        '200':
+          description: File found and returned
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
