@@ -8,6 +8,8 @@ import zio.http._
 import zio.http.model.{Method, Status}
 import zio.nio.file.{Path => FPath}
 
+import scala.util.Try
+
 sealed trait ApiError
 
 case object NoContentLength extends ApiError {
@@ -27,12 +29,12 @@ object HttpRoutes {
             .verifyJwtToken(authorizationToken)
             .tapError(_ => ZIO.logError("Invalid authorization token"))
 
-          contentLength <- for {
-            len <- ZIO.fromOption(req.headers.get("Content-Length"))
-              .mapError(_ => NoContentLength)
-              .tapError(_ => ZIO.logError("No Content-Length option"))
-              .map(_.toInt)
-          } yield len
+          contentLength <- ZIO.fromOption(req.headers.get("Content-Length"))
+            .mapError(_ => NoContentLength)
+            .tapError(_ => ZIO.logError("No Content-Length option"))
+            .map(_.toInt)
+
+          _ <- ZIO.unit.filterOrElse(_ => contentLength > 0)(ZIO.fail(TooBig(0)))
 
           _ <- ZIO.unit
             .filterOrElse(_ => contentLength < PhotoRepository.maxByteSize)(ZIO.fail(TooBig(contentLength)))
@@ -58,8 +60,8 @@ object HttpRoutes {
           }
       case req @ Method.GET -> !! / "photo" / "get" / id =>
         (for {
-          s3Repository <- ZIO.service[PhotoRepository]
-          result <- ZIO.attempt(Body.fromStream(s3Repository.read(FPath(id))))
+          photoR <- ZIO.service[PhotoRepository]
+          result <- ZIO.fromTry(Try(Body.fromStream(photoR.read(FPath(id)))))
         } yield result).either.map {
           case Right(body) => Response(status = Status.Ok, body = body)
           case Left(_) => Response.status(Status.NotFound)
