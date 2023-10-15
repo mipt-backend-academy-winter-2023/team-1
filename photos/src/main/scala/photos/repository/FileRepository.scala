@@ -1,19 +1,20 @@
 package photos.repository
 
 import photos.config.S3Config
-import zio.{ZIO, ZLayer}
+import photos.repository.PhotoRepository.Photo
+import zio.{Chunk, IO, ZIO, ZLayer}
 import zio.nio.file.Path
 import zio.stream.{ZSink, ZStream}
 
 import java.nio.file.{OpenOption, StandardOpenOption}
 
-class FileRepository(val localPath: Path) extends S3Repository {
-  override def write(fileStream: ZStream[Any, Throwable, Byte], path: Path): ZIO[Any, S3Error, Unit] = {
+class FileRepository(val localPath: Path) extends PhotoRepository {
+  override def write(path: Path, fileStream: ZStream[Any, Throwable, Byte]): ZIO[Any, PhotoRepoError, Unit] = {
     import photos.repository.FileRepository.writeFile
-    writeFile(fileStream, localPath / path)
+    writeFile(localPath / path, fileStream).map(_ => ())
   }
 
-  override def read(path: Path): ZStream[Any, Throwable, Byte] = {
+  override def read(path: Path): ZStream[Any, PhotoRepoError, Byte] = {
     import photos.repository.FileRepository.readFile
 
     readFile(localPath / path)
@@ -21,28 +22,23 @@ class FileRepository(val localPath: Path) extends S3Repository {
 }
 
 object FileRepository {
-  def apply(localPath: Path): S3Repository = new FileRepository(localPath)
+  def apply(localPath: Path): PhotoRepository = new FileRepository(localPath)
 
 
-  val live: ZLayer[S3Config, Throwable, S3Repository] =
+  val live: ZLayer[S3Config, Throwable, PhotoRepository] =
     ZLayer.fromFunction { config: S3Config => FileRepository(Path(config.path)) }
 
-  private def writeFile(fileStream: ZStream[Any, Throwable, Byte], path: Path): ZIO[Any, S3Error, Unit] = {
+  private def writeFile(path: Path, fileStream: ZStream[Any, Throwable, Byte]): ZIO[Any, PhotoRepoError, Long] = {
     val options: Set[OpenOption] = Set(
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE,
       StandardOpenOption.SYNC,
     )
     val fileSink = ZSink.fromFile(path.toFile, options = options)
-
-    val result = for {
-      _ <- (fileStream >>> fileSink).mapError(ex => RuntimeError(ex))
-    } yield ()
-
-    result
+    (fileStream >>> fileSink).mapError(RuntimeError.apply)
   }
 
-  private def readFile(path: Path): ZStream[Any, Throwable, Byte] = {
-    ZStream.fromFile(path.toFile)
+  private def readFile(path: Path): ZStream[Any, PhotoRepoError, Byte] = {
+    ZStream.fromFile(path.toFile).mapError(NotFound.apply)
   }
 }

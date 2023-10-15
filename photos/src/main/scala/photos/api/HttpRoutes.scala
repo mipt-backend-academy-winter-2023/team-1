@@ -1,15 +1,21 @@
 package photos.api
 
-import photos.{Auth, PhotoError, S3}
-import photos.repository.{NotPicture, S3Error, S3Repository, TooBig, TooLongRequest}
+import photos.{Api, Auth, Repo}
+import photos.repository.{NotPicture, PhotoRepoError, PhotoRepository, TooBig}
 import photos.utils.{AuthError, JwtError, JwtUtils}
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
 import zio.nio.file.{Path => FPath}
 
+sealed trait ApiError
+
+case object NoContentLength extends ApiError {
+  def apply: ApiError = NoContentLength
+}
+
 object HttpRoutes {
-  val app: HttpApp[S3Repository, Response] =
+  val app: HttpApp[PhotoRepository, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "photo" / "upload" / id =>
         (for {
@@ -21,9 +27,19 @@ object HttpRoutes {
             .verifyJwtToken(authorizationToken)
             .tapError(_ => ZIO.logError("Invalid authorization token"))
 
-          s3Repository <- ZIO.service[S3Repository]
+          contentLength <- for {
+            len <- ZIO.fromOption(req.headers.get("Content-Length"))
+              .mapError(_ => NoContentLength)
+              .tapError(_ => ZIO.logError("No Content-Length option"))
+              .map(_.toInt)
+          } yield len
 
-          result <- s3Repository.write(req.body.asStream, FPath(id))
+          _ <- ZIO.unit
+            .filterOrElse(_ => contentLength < PhotoRepository.maxByteSize)(ZIO.fail(TooBig(contentLength)))
+
+          photoR <- ZIO.service[PhotoRepository]
+
+          result <- photoR.write(FPath(id), req.body.asStream)
         } yield result)
           .map {
             _ => Response.status(Status.Ok)
@@ -32,20 +48,22 @@ object HttpRoutes {
             case Auth(error: AuthError) => error match {
               case JwtError(msg) => Response.text(msg).setStatus(Status.Unauthorized)
             }
-            case S3(error: S3Error) => error match {
+            case Api(error: ApiError) => error match {
+              case NoContentLength => Response.text("No Content-Length").setStatus(Status.BadRequest)
+            }
+            case Repo(error: PhotoRepoError) => error match {
               case TooBig(length) => Response.text(f"Too big request: $length").setStatus(Status.RequestEntityTooLarge)
               case NotPicture => Response.text("File is not a picture").setStatus(Status.BadRequest)
             }
           }
-//      case req @ Method.GET -> !! / "photo" / "get" / id =>
-//        (for {
-//          s3Repository <- ZIO.service[S3Repository]
-//
-//          result <- s3Repository.read(FPath(id))
-//        } yield result).either.map {
-//          case Right(_) => Response.status(Status.Ok)
-//          case Left(_) => Response.status(Status.NotFound)
-//        }
+      case req @ Method.GET -> !! / "photo" / "get" / id =>
+        (for {
+          s3Repository <- ZIO.service[PhotoRepository]
+          result <- ZIO.attempt(Body.fromStream(s3Repository.read(FPath(id))))
+        } yield result).either.map {
+          case Right(body) => Response(status = Status.Ok, body = body)
+          case Left(_) => Response.status(Status.NotFound)
+        }
       case _ => ZIO.succeed(Response.status(Status.NotImplemented))
     }
 }
