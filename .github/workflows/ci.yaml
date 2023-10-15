@@ -1,0 +1,15 @@
+name: test-build
+
+on:
+  pull_request:
+
+jobs:
+  buildx:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build Docker
+        uses: sudo-bot/action-docker-compose@latest
+        with:
+          cli-args: "build"
