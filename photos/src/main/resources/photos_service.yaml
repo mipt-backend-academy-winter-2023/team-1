@@ -8,9 +8,16 @@ info:
 
 paths:
 
-  /photo/upload:
+  /photo/upload/{id}:
     post:
       summary: Upload a photo
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Photo unique id
       security:
         - bearerAuth: []
       requestBody:
@@ -32,6 +39,24 @@ paths:
           description: No such url
         '500':
           description: Internal server error
+  /photo/get/{id}:
+    get:
+      summary: Get a photo
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Photo unique id
+      responses:
+        '200':
+          description: File found and returned
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
 
 components:
   securitySchemes:
