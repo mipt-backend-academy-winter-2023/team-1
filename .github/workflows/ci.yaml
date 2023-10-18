@@ -22,9 +22,11 @@ jobs:
       - name: Cache SBT-dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}-${{ hashFiles('**/*.scala') }}
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
       - name: Test and format
         run: |
-          sbt scalafmtCheckAll test:scalafmtCheckAll
+          sbt scalafmtAll test:scalafmtAll
           sbt test
