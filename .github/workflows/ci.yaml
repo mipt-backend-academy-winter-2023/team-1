@@ -1,7 +1,13 @@
 name: test-build
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
+      - task7
+      # Эти ветки указаны в задании, но у нас таких нет
+      - master
+      - 'release/AdzhimaNikita/**'
 
 jobs:
   buildx:
@@ -13,3 +19,12 @@ jobs:
         uses: sudo-bot/action-docker-compose@latest
         with:
           cli-args: "build"
+      - name: Cache SBT-dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+      - name: Test and format
+        run: |
+          sbt scalafmtCheckAll
+          sbt test
