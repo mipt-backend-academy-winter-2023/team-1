@@ -38,7 +38,7 @@ RUN ./ci/install_sdk.sh && ./ci/install_java.sh "$JAVA_VERSION"
 
 RUN apt-get install -y locales && locale-gen en_DK.UTF-8
 
-COPY --from=builder /workspace/photos/target/scala-2.13/*.jar .
+#COPY --from=builder /workspace/photos/target/scala-2.13/*.jar .
 
 EXPOSE 8083
 
