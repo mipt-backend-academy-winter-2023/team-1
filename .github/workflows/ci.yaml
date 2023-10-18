@@ -20,10 +20,10 @@ jobs:
         with:
           cli-args: "build"
       - name: Cache SBT-dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}-${{ hashFiles('**/project/build.properties') }}
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}-${{ hashFiles('**/*.scala') }}
       - name: Test and format
         run: |
           sbt scalafmtCheckAll test:scalafmtCheckAll
