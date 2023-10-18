@@ -19,16 +19,11 @@ jobs:
         uses: sudo-bot/action-docker-compose@latest
         with:
           cli-args: "build"
-      - name: Restore sbSBTt-dependencies
-        uses: actions/cache/restore@v3
-        with:
-          path: ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
       - name: Cache SBT-dependencies
         uses: actions/cache@v2
         with:
           path: ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}-${{ hashFiles('**/project/build.properties') }}
       - name: Test and format
         run: |
           sbt scalafmtCheckAll test:scalafmtCheckAll
