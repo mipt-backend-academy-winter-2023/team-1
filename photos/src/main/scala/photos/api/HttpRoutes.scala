@@ -2,7 +2,7 @@ package photos.api
 
 import photos.{Api, Auth, Repo}
 import photos.repository.{NotPicture, PhotoRepoError, PhotoRepository, TooBig}
-import photos.utils.{AuthError, JwtError, JwtUtils}
+import photos.utils.{AuthError, JwtError, JwtUtils, PhotosValidation}
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -41,7 +41,7 @@ object HttpRoutes {
 
           photoR <- ZIO.service[PhotoRepository]
 
-          result <- photoR.write(FPath(id), req.body.asStream)
+          result <- photoR.write(FPath(id), req.body.asStream.via(PhotosValidation.pipeline))
         } yield result)
           .map {
             _ => Response.status(Status.Ok)
@@ -57,6 +57,7 @@ object HttpRoutes {
               case TooBig(length) => Response.text(f"Too big request: $length").setStatus(Status.RequestEntityTooLarge)
               case NotPicture => Response.text("File is not a picture").setStatus(Status.BadRequest)
             }
+            case error: PhotosValidation.Error => Response.text(error.getMessage).setStatus(Status.NotAcceptable)
           }
       case req @ Method.GET -> !! / "photo" / "get" / id =>
         (for {
