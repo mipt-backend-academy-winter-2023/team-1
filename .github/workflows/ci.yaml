@@ -18,3 +18,6 @@ jobs:
         uses: sudo-bot/action-docker-compose@latest
         with:
           cli-args: "build"
+      - name: Test
+        run: |
+          sbt test

@@ -58,4 +58,11 @@ ThisBuild / assemblyMergeStrategy := {
   case x => (ThisBuild / assemblyMergeStrategy).value(x)
 }
 
+libraryDependencies ++= Seq(
+  "dev.zio" %% "zio-test"          % "2.0.18" % Test,
+  "dev.zio" %% "zio-test-sbt"      % "2.0.18" % Test,
+  "dev.zio" %% "zio-test-magnolia" % "2.0.18" % Test
+)
+testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+
 
