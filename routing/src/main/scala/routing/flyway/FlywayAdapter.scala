@@ -18,12 +18,13 @@ object FlywayAdapter {
 }
 
 class FlywayAdapterImpl(dbConfig: DbConfig) extends FlywayAdapter.Service {
-  val flyway: UIO[Flyway] = ZIO.succeed(
-    Flyway
-      .configure()
-      .locations(s"classpath:db/migration/")
-      .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
-  )
+  val flyway: UIO[Flyway] = ZIO
+    .succeed(
+      Flyway
+        .configure()
+        .locations(s"classpath:db/migration/")
+        .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
+    )
     .map(new Flyway(_))
 
   override def migration: IO[FlywayException, MigrateResult] =

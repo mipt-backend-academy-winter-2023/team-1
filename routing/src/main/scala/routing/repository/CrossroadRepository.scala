@@ -15,8 +15,8 @@ object CrossroadRepository {
 }
 
 final class CrossroadRepositoryImpl(pool: ConnectionPool)
-  extends CrossroadTableDescription
-     with CrossroadRepository {
+    extends CrossroadTableDescription
+    with CrossroadRepository {
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
@@ -24,7 +24,9 @@ final class CrossroadRepositoryImpl(pool: ConnectionPool)
     val selectAll = select(id, longitude, latitude).from(crossroad)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute findAllCrossroads is ${renderRead(selectAll)}")
+      ZIO.logInfo(
+        s"Query to execute findAllCrossroads is ${renderRead(selectAll)}"
+      )
     ) *> execute(selectAll.to((Crossroad.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }

@@ -23,7 +23,8 @@ object Config {
       )
     )
 
-  val connectionPoolConfigLive: ZLayer[DbConfig, Throwable, ConnectionPoolConfig] =
+  val connectionPoolConfigLive
+      : ZLayer[DbConfig, Throwable, ConnectionPoolConfig] =
     ZLayer(
       for {
         serverConfig <- ZIO.service[DbConfig]
@@ -42,23 +43,25 @@ object Config {
 }
 
 case class ConfigImpl(
-  dbConfig: DbConfig,
-  httpServiceConfig: HttpServerConfig
+    dbConfig: DbConfig,
+    httpServiceConfig: HttpServerConfig
 )
 
 case class DbConfig(
-  url: String,
-  user: String,
-  password: String
+    url: String,
+    user: String,
+    password: String
 )
 
 case class HttpServerConfig(
-  host: String,
-  port: Int
+    host: String,
+    port: Int
 )
 
 object ConfigImpl {
   implicit val configReader: ConfigReader[ConfigImpl] = deriveReader[ConfigImpl]
-  implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] = deriveReader[HttpServerConfig]
-  implicit val configReaderDbConfig: ConfigReader[DbConfig] = deriveReader[DbConfig]
+  implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] =
+    deriveReader[HttpServerConfig]
+  implicit val configReaderDbConfig: ConfigReader[DbConfig] =
+    deriveReader[DbConfig]
 }
