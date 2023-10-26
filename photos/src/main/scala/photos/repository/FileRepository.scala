@@ -34,8 +34,10 @@ object FileRepository {
       StandardOpenOption.WRITE,
       StandardOpenOption.SYNC,
     )
+    val pictureStream = fileStream.take(PhotoRepository.maxByteSize)
+    val pngStream: ZStream[Any, PhotoRepoError, Byte] = PngValidation.pipeline(pictureStream).mapError(RuntimeError.apply)
     val fileSink = ZSink.fromFile(path.toFile, options = options)
-    (fileStream >>> fileSink).mapError(RuntimeError.apply)
+    (pngStream >>> fileSink).mapError(RuntimeError.apply)
   }
 
   private def readFile(path: Path): ZStream[Any, PhotoRepoError, Byte] = {

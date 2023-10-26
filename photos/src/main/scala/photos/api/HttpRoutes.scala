@@ -1,7 +1,7 @@
 package photos.api
 
 import photos.{Api, Auth, Repo}
-import photos.repository.{NotPicture, PhotoRepoError, PhotoRepository, TooBig}
+import photos.repository.{NotPicture, PhotoRepoError, PhotoRepository, RuntimeError, TooBig}
 import photos.utils.{AuthError, JwtError, JwtUtils}
 import zio.ZIO
 import zio.http._
@@ -13,8 +13,10 @@ import scala.util.Try
 sealed trait ApiError
 
 case object NoContentLength extends ApiError {
-  def apply: ApiError = NoContentLength
+  def apply(unused: Any): ApiError = NoContentLength
 }
+
+case class AuthTokenNotProvided(param: String) extends ApiError
 
 object HttpRoutes {
   val app: HttpApp[PhotoRepository, Response] =
@@ -23,6 +25,7 @@ object HttpRoutes {
         (for {
           authorizationToken <- ZIO
             .fromOption(req.headers.get("auth_token"))
+            .mapError(_ => AuthTokenNotProvided("auth_token"))
             .tapError(_ => ZIO.logError("Authorization token not provided"))
 
           _ <- JwtUtils
@@ -52,10 +55,12 @@ object HttpRoutes {
             }
             case Api(error: ApiError) => error match {
               case NoContentLength => Response.text("No Content-Length").setStatus(Status.BadRequest)
+              case AuthTokenNotProvided(tokenName) => Response.text(f"Provide $tokenName token").setStatus(Status.BadRequest)
             }
             case Repo(error: PhotoRepoError) => error match {
               case TooBig(length) => Response.text(f"Too big request: $length").setStatus(Status.RequestEntityTooLarge)
-              case NotPicture => Response.text("File is not a picture").setStatus(Status.BadRequest)
+              case NotPicture(ctx) => Response.text(f"File is not a picture: $ctx").setStatus(Status.BadRequest)
+              case RuntimeError(ex) => Response.text(f"Something went wrong: ${ex.getLocalizedMessage}").setStatus(Status.InternalServerError)
             }
           }
       case req @ Method.GET -> !! / "photo" / "get" / id =>

@@ -8,9 +8,7 @@ import zio.nio.file.Path
 sealed trait PhotoRepoError extends Throwable
 case class TooBig(length: Int) extends PhotoRepoError
 case class RuntimeError(ex: Throwable) extends PhotoRepoError
-case object NotPicture extends PhotoRepoError {
-  def apply(unused: Any): PhotoRepoError = NotPicture
-}
+case class NotPicture(context: String) extends PhotoRepoError
 case object NotFound extends PhotoRepoError {
   def apply(unused: Any): PhotoRepoError = NotFound
 }
