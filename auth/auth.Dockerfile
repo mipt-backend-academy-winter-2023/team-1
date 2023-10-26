@@ -4,6 +4,7 @@ RUN apt-get update
 RUN apt-get install -y curl zip unzip
 
 ARG JAVA_VERSION="17.0.7-amzn"
+ARG SBT_VERSION="1.9.6"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
@@ -11,8 +12,9 @@ WORKDIR /workspace
 
 COPY ../ci ./ci
 
-RUN ./ci/install_sdk.sh && ./ci/install_java.sh "$JAVA_VERSION"
-RUN ./ci/install_sbt.sh
+RUN ./ci/install_sdk.sh
+RUN ./ci/install_java.sh "$JAVA_VERSION"
+RUN ./ci/install_sbt.sh "$SBT_VERSION"
 
 RUN apt-get install -y locales && locale-gen en_DK.UTF-8
 
