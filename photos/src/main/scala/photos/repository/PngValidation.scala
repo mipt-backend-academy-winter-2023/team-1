@@ -16,14 +16,14 @@ object PngValidation {
     0x0a,
   ).map(_.toByte)
 
-  private def checkHeader(buffer: Chunk[Byte]): ZChannel[Any, Nothing, Chunk[Byte], Any, Throwable, Chunk[Byte], Any] = {
+  private def checkHeader(buffer: Chunk[Byte]): ZChannel[Any, Throwable, Chunk[Byte], Any, Throwable, Chunk[Byte], Any] = {
     ZChannel.readOrFail[NotPicture, Chunk[Byte]](NotPicture("is empty"))
       .flatMap { in =>
         val prefix = buffer ++ in
         if (prefix.length < magic.length) {
           checkHeader(prefix)
         } else if (prefix.startsWith(magic)) {
-          ZChannel.write(prefix) *> ZChannel.identity[Nothing, Chunk[Byte], Any]
+          ZChannel.write(prefix) *> ZChannel.identity[Throwable, Chunk[Byte], Any]
         } else {
           ZChannel.fail(NotPicture("header magic mismatch"))
         }
