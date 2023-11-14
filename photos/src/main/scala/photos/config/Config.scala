@@ -16,21 +16,28 @@ object Config {
     )
 
   val s3Live: ZLayer[Any, Nothing, S3Config] = {
-    ZLayer.fromZIO(ZIO.attempt(source.loadOrThrow[ConfigImpl].s3ServiceConfig).orDie)
+    ZLayer.fromZIO(
+      ZIO.attempt(source.loadOrThrow[ConfigImpl].s3ServiceConfig).orDie
+    )
   }
 }
 
-case class ConfigImpl(httpServiceConfig: HttpServerConfig, s3ServiceConfig: S3Config)
+case class ConfigImpl(
+    httpServiceConfig: HttpServerConfig,
+    s3ServiceConfig: S3Config
+)
 
 case class HttpServerConfig(
-  host: String,
-  port: Int
+    host: String,
+    port: Int
 )
 
 case class S3Config(path: String)
 
 object ConfigImpl {
   implicit val configReader: ConfigReader[ConfigImpl] = deriveReader[ConfigImpl]
-  implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] = deriveReader[HttpServerConfig]
-  implicit val configReaderS3ServiceConfig: ConfigReader[S3Config] = deriveReader[S3Config]
+  implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] =
+    deriveReader[HttpServerConfig]
+  implicit val configReaderS3ServiceConfig: ConfigReader[S3Config] =
+    deriveReader[S3Config]
 }
