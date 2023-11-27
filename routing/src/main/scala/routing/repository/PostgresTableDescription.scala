@@ -11,14 +11,14 @@ trait BuildingTableDescription extends PostgresJdbcModule {
   val (id, longitude, latitude, name) = building.columns
 }
 
-trait CrossroadTableDescription extends  PostgresJdbcModule {
+trait CrossroadTableDescription extends PostgresJdbcModule {
   implicit val crossroadSchema = DeriveSchema.gen[Crossroad]
 
   val crossroad = defineTable[Crossroad]
   val (id, longitude, latitude) = crossroad.columns
 }
 
-trait StreetTableDescription extends  PostgresJdbcModule {
+trait StreetTableDescription extends PostgresJdbcModule {
   implicit val streetSchema = DeriveSchema.gen[Street]
 
   val street = defineTable[Street]

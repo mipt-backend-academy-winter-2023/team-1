@@ -14,7 +14,10 @@ case object NotFound extends PhotoRepoError {
 }
 
 trait PhotoRepository {
-  def write(path: Path, fileStream: ZStream[Any, Throwable, Byte]): IO[PhotoRepoError, Unit]
+  def write(
+      path: Path,
+      fileStream: ZStream[Any, Throwable, Byte]
+  ): IO[PhotoRepoError, Unit]
   def read(path: Path): ZStream[Any, PhotoRepoError, Byte]
 }
 

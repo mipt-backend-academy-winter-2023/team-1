@@ -6,7 +6,9 @@ import zio.{ZIO, ZLayer}
 import zio.sql.ConnectionPool
 import zio.stream.ZStream
 
-final class UserRepositoryImpl(pool: ConnectionPool) extends UserRepository with PostgresTableDescription {
+final class UserRepositoryImpl(pool: ConnectionPool)
+    extends UserRepository
+    with PostgresTableDescription {
 
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
@@ -39,7 +41,9 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends UserRepository with
       .where(fUsername === user.username)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute findByUserName(user) is ${renderRead(selectUser)}")
+      ZIO.logInfo(
+        s"Query to execute findByUserName(user) is ${renderRead(selectUser)}"
+      )
     ) *> execute(selectUser.to((User.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }
@@ -60,4 +64,3 @@ object UserRepositoryImpl {
   val live: ZLayer[ConnectionPool, Throwable, UserRepository] =
     ZLayer.fromFunction(new UserRepositoryImpl(_))
 }
-

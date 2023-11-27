@@ -9,7 +9,10 @@ import zio.stream.{ZSink, ZStream}
 import java.nio.file.{OpenOption, StandardOpenOption}
 
 class FileRepository(val localPath: Path) extends PhotoRepository {
-  override def write(path: Path, fileStream: ZStream[Any, Throwable, Byte]): ZIO[Any, PhotoRepoError, Unit] = {
+  override def write(
+      path: Path,
+      fileStream: ZStream[Any, Throwable, Byte]
+  ): ZIO[Any, PhotoRepoError, Unit] = {
     import photos.repository.FileRepository.writeFile
     writeFile(localPath / path, fileStream).map(_ => ())
   }
@@ -24,22 +27,26 @@ class FileRepository(val localPath: Path) extends PhotoRepository {
 object FileRepository {
   def apply(localPath: Path): PhotoRepository = new FileRepository(localPath)
 
-
   val live: ZLayer[S3Config, Throwable, PhotoRepository] =
-    ZLayer.fromFunction { config: S3Config => FileRepository(Path(config.path)) }
+    ZLayer.fromFunction { config: S3Config =>
+      FileRepository(Path(config.path))
+    }
 
-  private def writeFile(path: Path, fileStream: ZStream[Any, Throwable, Byte]): ZIO[Any, PhotoRepoError, Long] = {
+  private def writeFile(
+      path: Path,
+      fileStream: ZStream[Any, Throwable, Byte]
+  ): ZIO[Any, PhotoRepoError, Long] = {
     val options: Set[OpenOption] = Set(
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE,
-      StandardOpenOption.SYNC,
+      StandardOpenOption.SYNC
     )
     val pictureStream = fileStream.take(PhotoRepository.maxByteSize)
     val pngStream = PngValidation.pipeline(pictureStream)
     val fileSink = ZSink.fromFile(path.toFile, options = options)
     (pngStream >>> fileSink).mapError {
       case e: PhotoRepoError => e
-      case ex: Throwable => RuntimeError(ex)
+      case ex: Throwable     => RuntimeError(ex)
     }
   }
 

@@ -9,10 +9,11 @@ object HelperMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
     for {
       _ <- ZIO.logInfo("Start HelperMain")
-      _ <- zio.http.Server.serve(HelpRoutes.app)
+      _ <- zio.http.Server
+        .serve(HelpRoutes.app)
         .provide(
           Server.live,
-          ServiceConfig.live,
+          ServiceConfig.live
         )
     } yield ()
   }

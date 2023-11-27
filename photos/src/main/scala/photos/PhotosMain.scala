@@ -17,7 +17,7 @@ object PhotosMain extends ZIOAppDefault {
       Config.serverLive,
       Server.live,
       Config.s3Live,
-      FileRepository.live,
+      FileRepository.live
     )
   }
 }

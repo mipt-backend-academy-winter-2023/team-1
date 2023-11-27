@@ -16,30 +16,39 @@ object HttpRoutes {
   val app: HttpApp[UserRepository, Response] =
     Http.collectZIO[Request] {
 
-      case req@Method.POST -> !! / "authorization" / "register" =>
+      case req @ Method.POST -> !! / "authorization" / "register" =>
         (for {
           bodyStr <- req.body.asString
-          user <- ZIO.fromEither(decode[User](bodyStr)).tapError(e => ZIO.logError(e.getMessage))
+          user <- ZIO
+            .fromEither(decode[User](bodyStr))
+            .tapError(e => ZIO.logError(e.getMessage))
           _ <- UserRepository.add(user)
           _ <- ZIO.logInfo(s"Registered user: $user")
         } yield ()).either.map {
-          case Right(_) => Response.status(Created)
+          case Right(_)              => Response.status(Created)
           case Left(_: SQLException) => Response.status(Conflict)
-          case Left(_) => Response.status(BadRequest)
+          case Left(_)               => Response.status(BadRequest)
         }
 
-      case req@Method.POST -> !! / "authorization" / "login" =>
+      case req @ Method.POST -> !! / "authorization" / "login" =>
         (for {
           bodyStr <- req.body.asString
-          user <- ZIO.fromEither(decode[User](bodyStr)).tapError(e => ZIO.logError(e.getMessage))
+          user <- ZIO
+            .fromEither(decode[User](bodyStr))
+            .tapError(e => ZIO.logError(e.getMessage))
           found <- UserRepository.find(user).runCollect.map(_.toArray)
         } yield (user, found)).either.map {
-          case Right((oldUser, users)) => users match {
-            case Array() => Response.status(Unauthorized)
-            case _ =>
-              ZIO.logInfo(s"Authorized user: $oldUser")
-              Response.text(s"{\n\"token\": \"${generateToken(oldUser.username)}\"\n}").setStatus(Ok)
-          }
+          case Right((oldUser, users)) =>
+            users match {
+              case Array() => Response.status(Unauthorized)
+              case _ =>
+                ZIO.logInfo(s"Authorized user: $oldUser")
+                Response
+                  .text(s"""{\n"token": "${generateToken(
+                    oldUser.username
+                  )}"\n}""")
+                  .setStatus(Ok)
+            }
           case Left(_) => Response.status(BadRequest)
         }
     }

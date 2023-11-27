@@ -15,8 +15,8 @@ object StreetRepository {
 }
 
 final class StreetRepositoryImpl(pool: ConnectionPool)
-  extends StreetTableDescription
-     with StreetRepository {
+    extends StreetTableDescription
+    with StreetRepository {
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
@@ -24,7 +24,9 @@ final class StreetRepositoryImpl(pool: ConnectionPool)
     val selectAll = select(fromId, toId, name).from(street)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute findAllStreets is ${renderRead(selectAll)}")
+      ZIO.logInfo(
+        s"Query to execute findAllStreets is ${renderRead(selectAll)}"
+      )
     ) *> execute(selectAll.to((Street.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }

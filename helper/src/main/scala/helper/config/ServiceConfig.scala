@@ -12,9 +12,7 @@ object ServiceConfig {
   private val serviceConfig: ServiceConfig = source.loadOrThrow[ServiceConfig]
 
   val live: ZLayer[Any, Nothing, ServerConfig] = zio.http.ServerConfig.live {
-    http
-      .ServerConfig
-      .default
+    http.ServerConfig.default
       .binding(serviceConfig.host, serviceConfig.port)
   }
 }

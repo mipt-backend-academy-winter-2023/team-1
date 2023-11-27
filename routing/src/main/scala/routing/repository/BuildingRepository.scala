@@ -15,8 +15,8 @@ object BuildingRepository {
 }
 
 final class BuildingRepositoryImpl(pool: ConnectionPool)
-  extends BuildingTableDescription
-     with BuildingRepository {
+    extends BuildingTableDescription
+    with BuildingRepository {
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
@@ -24,7 +24,9 @@ final class BuildingRepositoryImpl(pool: ConnectionPool)
     val selectAll = select(id, longitude, latitude, name).from(building)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute findAllStreets is ${renderRead(selectAll)}")
+      ZIO.logInfo(
+        s"Query to execute findAllStreets is ${renderRead(selectAll)}"
+      )
     ) *> execute(selectAll.to((Building.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }

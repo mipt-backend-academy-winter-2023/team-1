@@ -3,7 +3,11 @@ package routing
 import routing.api.HttpRoutes
 import routing.config.Config
 import routing.flyway.FlywayAdapter
-import routing.repository.{BuildingRepositoryImpl, CrossroadRepositoryImpl, StreetRepositoryImpl}
+import routing.repository.{
+  BuildingRepositoryImpl,
+  CrossroadRepositoryImpl,
+  StreetRepositoryImpl
+}
 import routing.utils.Graph
 import zio.http.Server
 import zio.sql.ConnectionPool

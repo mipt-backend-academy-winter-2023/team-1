@@ -9,25 +9,25 @@ trait GeoPoint extends Geo {
 }
 
 case class Crossroad(
-  id: Int,
-  longitude: Float,
-  latitude: Float
+    id: Int,
+    longitude: Float,
+    latitude: Float
 ) extends GeoPoint
 
 case class Building(
-  id: Int,
-  longitude: Float,
-  latitude: Float,
-  name: String
+    id: Int,
+    longitude: Float,
+    latitude: Float,
+    name: String
 ) extends GeoPoint
 
 case class Street(
-  fromId: Int,
-  toId: Int,
-  name: String
+    fromId: Int,
+    toId: Int,
+    name: String
 ) extends Geo
 
 case class RoutingRequest(
-  fromPointId: Int,
-  toPointId: Int
+    fromPointId: Int,
+    toPointId: Int
 )

@@ -1,7 +1,10 @@
 name: test-build
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
+      - 'task/**'
 
 jobs:
   buildx:
@@ -13,3 +16,27 @@ jobs:
         uses: sudo-bot/action-docker-compose@latest
         with:
           cli-args: "build"
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore sbt-dependencies
+        id: cache-sbt-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+      - name: Test
+        run: sbt test
+      - name: Cache sbt-dependecies
+        id: cache-sbt-save
+        uses: actions/cache/save@v3
+        with:
+          path: ~/.sbt
+          key: ${{ steps.cache-sbt-restore.outputs.cache-primary-key }}
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Format
+        run: sbt scalafmtCheckAll
