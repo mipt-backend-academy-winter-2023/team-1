@@ -71,7 +71,9 @@ object Graph {
 
           if (distances(edge.geoPointTo.id) > newDistance) {
             distances(edge.geoPointTo.id) = newDistance
-            prev.addOne((edge.geoPointTo.id, (edge.toStreet, edge.geoPointFrom)))
+            prev.addOne(
+              (edge.geoPointTo.id, (edge.toStreet, edge.geoPointFrom))
+            )
             queue.addOne((newDistance, edge.geoPointTo.id))
           }
         }
