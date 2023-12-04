@@ -3,7 +3,7 @@ FROM ubuntu:latest AS builder
 RUN apt-get update
 RUN apt-get install -y curl zip unzip
 
-ARG JAVA_VERSION="17.0.7-amzn"
+ARG JAVA_VERSION="17.0.9-amzn"
 ARG SBT_VERSION="1.9.6"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
@@ -28,7 +28,7 @@ FROM ubuntu:latest
 RUN apt-get update
 RUN apt-get install -y curl zip unzip
 
-ARG JAVA_VERSION="17.0.7-amzn"
+ARG JAVA_VERSION="17.0.9-amzn"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
