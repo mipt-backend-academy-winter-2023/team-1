@@ -43,9 +43,9 @@ object HttpRoutes {
           .tapError(_ => ZIO.logError("Invalid point id"))
 
         route <- Graph.searchForShortestRoute(routingRequest)
-        // TODO: преобразовать маршрут в красивый Response
       } yield route).either.map {
-        case Right(route) => Response.text(route.toString).setStatus(Status.Ok)
+        case Right(route) =>
+          Response.text(route.mkString("  ---->  ")).setStatus(Status.Ok)
         case Left(InvalidAuthorizationToken(msg)) =>
           Response.text(msg).setStatus(Status.Unauthorized)
         case Left(RouteNotFound(msg)) =>
