@@ -1,5 +1,8 @@
 package routing.api
 
+import circuitbreaker.ZCircuitBreaker
+import externalsystems.jams.JamsProtocol.JamsResponse
+import externalsystems.jams.JamsService
 import routing.model.JsonProtocol._
 import routing.model.RoutingRequest
 import routing.repository.{
@@ -9,15 +12,20 @@ import routing.repository.{
 }
 import routing.utils.{Graph, InvalidAuthorizationToken, JwtUtils}
 import io.circe.jawn.decode
+import nl.vroste.rezilience.CircuitBreaker.CircuitBreakerException
 import routing.utils.Graph.RouteNotFound
-import zio.ZIO
+import zio.{Task, ZIO}
 import zio.http._
 import zio.http.model.Status.BadRequest
 import zio.http.model.{Method, Status}
 
+import scala.collection.concurrent.TrieMap
+
 object HttpRoutes {
+  val fallback: TrieMap[Int, JamsResponse] = TrieMap.empty
+
   val app: HttpApp[
-    CrossroadRepository with BuildingRepository with StreetRepository,
+    CrossroadRepository with BuildingRepository with StreetRepository with JamsService with ZCircuitBreaker,
     Response
   ] =
     Http.collectZIO[Request] { case req @ Method.POST -> !! / "routes" =>
@@ -43,9 +51,32 @@ object HttpRoutes {
           .tapError(_ => ZIO.logError("Invalid point id"))
 
         route <- Graph.searchForShortestRoute(routingRequest)
-        // TODO: преобразовать маршрут в красивый Response
-      } yield route).either.map {
-        case Right(route) => Response.text(route.toString).setStatus(Status.Ok)
+
+        jamValue <- ZCircuitBreaker
+          .run(JamsService.getJamsValue(routingRequest.fromPointId))
+          .tap(jam =>
+            ZIO.succeed(fallback.put(routingRequest.fromPointId, jam))
+          )
+          .catchAll(error =>
+            fallback
+              .get(routingRequest.fromPointId)
+              .fold[Task[JamsResponse]](
+                ZIO.logError(s"Jams value not found: ${error.toString}") *>
+                  ZIO.fail(error.toException)
+              )(value =>
+                ZIO.logInfo(s"Got jams value from fallback: $value") *>
+                  ZIO.succeed(value)
+              )
+          )
+      } yield (route, jamValue)).either.map {
+        case Right((route, jamValue)) =>
+          Response
+            .text(s"route: ${route.mkString(" ----> ")}\njam value: $jamValue")
+            .setStatus(Status.Ok)
+        case Left(CircuitBreakerException(error)) =>
+          Response
+            .text(s"Jams service is not available: ${error.toString}")
+            .setStatus(Status.InternalServerError)
         case Left(InvalidAuthorizationToken(msg)) =>
           Response.text(msg).setStatus(Status.Unauthorized)
         case Left(RouteNotFound(msg)) =>
