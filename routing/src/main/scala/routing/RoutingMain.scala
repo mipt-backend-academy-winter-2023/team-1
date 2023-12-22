@@ -1,5 +1,8 @@
 package routing
 
+import circuitbreaker.MyCircuitBreaker
+import circuitbreaker.MyCircuitBreakerImpl
+import jams.JamsImpl
 import routing.api.HttpRoutes
 import routing.config.Config
 import routing.flyway.FlywayAdapter
@@ -9,6 +12,7 @@ import routing.repository.{
   StreetRepositoryImpl
 }
 import routing.utils.Graph
+import sttp.client3.httpclient.zio.HttpClientZioBackend
 import zio.http.Server
 import zio.sql.ConnectionPool
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
@@ -26,13 +30,17 @@ object RoutingMain extends ZIOAppDefault {
     server.provide(
       Server.live,
       Config.serverLive,
+      HttpClientZioBackend.layer(),
       Config.dbLive,
       FlywayAdapter.live,
       Config.connectionPoolConfigLive,
       ConnectionPool.live,
       StreetRepositoryImpl.live,
       BuildingRepositoryImpl.live,
-      CrossroadRepositoryImpl.live
+      CrossroadRepositoryImpl.live,
+      MyCircuitBreakerImpl.live,
+      JamsImpl.live,
+      Scope.default
     )
   }
 }

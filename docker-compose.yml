@@ -52,6 +52,13 @@ services:
     depends_on:
       - routing_database
 
+  jams:
+    image: "vovapolu/jams:0.1.0"
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+
 volumes:
   user-data:
   routing-data:

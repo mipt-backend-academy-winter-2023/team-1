@@ -31,3 +31,7 @@ case class RoutingRequest(
     fromPointId: Int,
     toPointId: Int
 )
+
+case class JamId(
+    id: Int
+)

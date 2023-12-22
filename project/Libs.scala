@@ -7,10 +7,12 @@ object V {
     val sql = "0.1.2"
     val nio = "2.0.1"
   }
-  val pureconfig = "0.17.2"
+  val pureconfig = "0.17.4"
   val flyway = "9.16.0"
-  val circe = "0.14.1"
+  val circe = "0.14.5"
   val jwt = "1.8.1"
+  val sttp = "3.9.0"
+  val rezilience = "0.9.3"
 }
 
 object Libs {
@@ -38,5 +40,14 @@ object Libs {
 
   val jwt: List[ModuleID] = List(
     "com.github.xuwei-k" %% "jwt-scala" % V.jwt,
+  )
+
+  val sttp: List[ModuleID] = List(
+    "com.softwaremill.sttp.client3" %% "zio" % V.sttp,
+    "com.softwaremill.sttp.client3" %% "circe" % V.sttp
+  )
+
+  val rezilience: List[ModuleID] = List(
+    "nl.vroste" %% "rezilience" % V.rezilience
   )
 }
