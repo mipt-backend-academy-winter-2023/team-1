@@ -7,9 +7,9 @@ object V {
     val sql = "0.1.2"
     val nio = "2.0.1"
   }
-  val pureconfig = "0.17.4"
+  val pureconfig = "0.17.2"
   val flyway = "9.16.0"
-  val circe = "0.14.5"
+  val circe = "0.14.1"
   val jwt = "1.8.1"
   val sttp = "3.9.0"
   val rezilience = "0.9.3"
