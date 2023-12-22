@@ -33,5 +33,5 @@ case class RoutingRequest(
 )
 
 case class JamId(
-    id: Int
+    jam_value: Int
 )
