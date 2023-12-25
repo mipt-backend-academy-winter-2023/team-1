@@ -24,4 +24,5 @@ trait PhotoRepository {
 object PhotoRepository {
   type Photo = Chunk[Byte]
   val maxByteSize = 10 * 1024 * 1024
+  val maxSizeWithoutCompression = 3 * 1024 * 1024
 }

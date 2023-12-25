@@ -1,4 +1,4 @@
-import Dependencies.{Auth, Routing, Helper}
+import Dependencies.{Auth, Routing, Photos, Helper, Compressor}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -13,12 +13,14 @@ lazy val root = (project in file("."))
     routing,
     photos,
     helper,
+    compressor,
   )
   .dependsOn(
     auth,
     routing,
     photos,
     helper,
+    compressor,
   )
 
 lazy val auth = (project in file("auth"))
@@ -36,13 +38,19 @@ lazy val routing = (project in file("routing"))
 lazy val photos = (project in file("photos"))
   .settings(
     name := "project-photos",
-    libraryDependencies ++= Routing.dependencies
+    libraryDependencies ++= Photos.dependencies
   )
 
 lazy val helper = (project in file("helper"))
   .settings(
     name := "project-helper",
     libraryDependencies ++= Helper.dependencies
+  )
+
+lazy val compressor = (project in file("compressor"))
+  .settings(
+    name := "project-compressor",
+    libraryDependencies ++= Compressor.dependencies
   )
 
 ThisBuild / assemblyMergeStrategy := {

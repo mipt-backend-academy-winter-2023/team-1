@@ -16,10 +16,14 @@ object Dependencies {
   }
 
   object Photos extends Dependencies {
-    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig, circe, jwt).flatten
+    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig, circe, jwt, kafka).flatten
   }
 
   object Helper extends Dependencies {
     override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig).flatten
+  }
+
+  object Compressor extends Dependencies {
+    override def dependencies: Seq[ModuleID] = Seq(zio, kafka).flatten
   }
 }

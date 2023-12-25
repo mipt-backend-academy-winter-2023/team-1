@@ -12,6 +12,8 @@ import photos.utils.{AuthError, JwtError, JwtUtils}
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
+import zio.kafka.producer.Producer
+import zio.kafka.serde.Serde
 import zio.nio.file.{Path => FPath}
 
 import scala.util.Try
@@ -25,7 +27,7 @@ case object NoContentLength extends ApiError {
 case class AuthTokenNotProvided(param: String) extends ApiError
 
 object HttpRoutes {
-  val app: HttpApp[PhotoRepository, Response] =
+  val app: HttpApp[Producer with PhotoRepository, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "photo" / "upload" / id =>
         (for {
@@ -52,6 +54,14 @@ object HttpRoutes {
             .filterOrElse(_ => contentLength < PhotoRepository.maxByteSize)(
               ZIO.fail(TooBig(contentLength))
             )
+
+          _ <- Producer.produce[Any, Long, String](
+            topic = "photos",
+            key = id.toLong,
+            value = FPath(id).toString,
+            keySerializer = Serde.long,
+            valueSerializer = Serde.string
+          )
 
           photoR <- ZIO.service[PhotoRepository]
 

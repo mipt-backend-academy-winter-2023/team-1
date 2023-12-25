@@ -41,6 +41,19 @@ services:
     depends_on:
       - user_database
 
+  compressor:
+    build:
+      context: .
+      dockerfile: compressor/compressor.Dockerfile
+    ports:
+      - "8088:8088"
+    expose:
+      - "8088"
+    depends_on:
+      - kafka-2
+    volumes:
+      - pictures-data:/data/photos/
+
   routing-balancer:
     image: nginx
     ports:
@@ -80,6 +93,50 @@ services:
       - "8086"
     depends_on:
       - routing_database
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: "zookeeper"
+    ports:
+      - "2181:2181"
+    expose:
+      - "2181"
+
+  kafka-1:
+    image: wurstmeister/kafka
+    depends_on: [ zookeeper ]
+    ports:
+      - "9092:9092"
+      - "1099:1099"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${DOCKER_HOST_IP:-127.0.0.1}:9092,PLAINTEXT_INTERNAL://kafka-1:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_CREATE_TOPICS: "topic.resume:1:2,topic.answer:1:2"
+
+  kafka-2:
+    image: wurstmeister/kafka
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${DOCKER_HOST_IP:-127.0.0.1}:9093,PLAINTEXT_INTERNAL://kafka-2:29093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,PLAINTEXT_INTERNAL://:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+    depends_on:
+      - zookeeper
+      - kafka-1
 
 volumes:
   user-data:
