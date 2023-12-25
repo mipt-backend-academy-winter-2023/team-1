@@ -19,7 +19,7 @@ object Graph {
       streetName: String,
       distance: Float
   ) {
-    def toStreet: Street = Street(geoPointFrom.id, geoPointFrom.id, streetName)
+    def toStreet: Street = Street(geoPointFrom.id, geoPointTo.id, streetName)
   }
 
   private val geoPoints = new ArrayBuffer[GeoPoint]()
@@ -46,7 +46,6 @@ object Graph {
       _ <- StreetRepository.findAllStreets.runCollect.map(foundStreets =>
         streets ++= foundStreets.toList
       )
-      _ = init()
     } yield ()
   }
 
@@ -56,8 +55,7 @@ object Graph {
   def searchForShortestRoute(
       routingRequest: RoutingRequest
   ): ZIO[Any, Throwable, Seq[Geo]] = {
-    distances.clear()
-    prev.clear()
+    init()
 
     var queue = new mutable.PriorityQueue[Tuple2[Float, Int]]()
     queue.addOne((0, routingRequest.fromPointId))
@@ -66,22 +64,17 @@ object Graph {
     while (queue.nonEmpty) {
       val (currentDist, currentVert) = queue.head
       queue = queue.drop(1)
+
       if (currentDist <= distances(currentVert)) {
         for (edge <- graphEdges(currentVert)) {
-          val distanceToCurrentVert = distances(currentVert)
-          if (
-            distances(
-              edge.geoPointTo.id
-            ) > distanceToCurrentVert + edge.distance
-          ) {
-            distances(edge.geoPointTo.id) =
-              distanceToCurrentVert + edge.distance
+          val newDistance = distances(currentVert) + edge.distance
+
+          if (distances(edge.geoPointTo.id) > newDistance) {
+            distances(edge.geoPointTo.id) = newDistance
             prev.addOne(
               (edge.geoPointTo.id, (edge.toStreet, edge.geoPointFrom))
             )
-            queue.addOne(
-              (distanceToCurrentVert + edge.distance, edge.geoPointTo.id)
-            )
+            queue.addOne((newDistance, edge.geoPointTo.id))
           }
         }
       }
@@ -97,6 +90,7 @@ object Graph {
     graphEdges.clear()
     distances.clear()
     prev.clear()
+    geoPoints.foreach(geo => distances.addOne((geo.id, Float.PositiveInfinity)))
     streets.foreach(addEdge)
   }
 
