@@ -4,9 +4,16 @@ import photos.api.HttpRoutes
 import photos.config.Config
 import photos.repository.{FileRepository, PhotoRepository}
 import zio.http.Server
-import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
+import zio.kafka.producer.{Producer, ProducerSettings}
+import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault, ZLayer}
 
 object PhotosMain extends ZIOAppDefault {
+  def kafkaLayer =
+    ZLayer.scoped(
+      Producer.make(
+        settings = ProducerSettings(List("kafka-1:9092"))
+      )
+    )
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
     val server = for {
       _ <- ZIO.logInfo("Start PhotosMain")
@@ -17,7 +24,8 @@ object PhotosMain extends ZIOAppDefault {
       Config.serverLive,
       Server.live,
       Config.s3Live,
-      FileRepository.live
+      FileRepository.live,
+      kafkaLayer
     )
   }
 }
